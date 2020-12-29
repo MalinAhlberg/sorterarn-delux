@@ -1,83 +1,73 @@
 import logging
 import os
 import time
-import sqlite3
 import xml.etree.ElementTree as etree
+from xml.dom.minidom import parseString
+
 from peewee import *
+
+from model import *
 
 import pdb
 
 
-inspect_key = "\t"
-xml_key = "x"
-
 # SQLite database using WAL journal mode and 64MB cache.
-init_sqlite_db = SqliteDatabase('test.db', pragmas={
+init_sqlite_db = SqliteDatabase(db_name, pragmas={
     'journal_mode': 'wal',
     'cache_size': -1024 * 64})
 
 
-class BaseModel(Model):
-    """A base model that will use our Sqlite database."""
-    class Meta:
-        database = init_sqlite_db
-
-class Sentence(BaseModel):
-    text = TextField()
-    xml = BlobField()
-    corpus = CharField()
-    congruent = BooleanField()
-    tense_type = CharField()
-    compound_tense = BooleanField()
-
-
-tense_types = ['evaluative', 'modifying', None]
-corpora = ['familjeliv', 'flashback', None]
-
+# TODO print all errors to file. Print all updates to file.
 
 def init_db():
+    """Check if the tables exist, otherwise create them."""
     for table in [Sentence]:
         if not table.table_exists():
             logging.info(f"Creating table '{table.__name__}'")
             table.create_table()
 
 
-def test():
-    sent = Sentence(text='hej\tsa\tapan bob',
-                    xml='<sent><w>hej<\w><\sent>',
-                    corpus='familjeliv',
-                    congruent=True,
-                    tense_type=None,
-                    compound_tense=False)
-    sent.save()
+def import_data(txt, **kwargs):
+    """
+    Import data from a txt file.
 
+    Optionally add metadata (corpus, xml file or other field values.)
+    """
 
-# Import data from .txt + .xml
-def import_data(txt, corpus, tensetype=None, xml=None):
+    if 'xml' in kwargs:
+        root = etree.parse(kwargs['xml']).getroot()
+        sents = list(root.iterfind('.//sentence'))
+    def get_sentence_xml(num):
+        if 'xml' in kwargs:
+            return etree.tostring(sents[num])
+        return ''
 
-    root = etree.parse(xml).getroot()
-    sents = list(root.iterfind('.//sentence'))
     num = 0
     for line in open(txt):
         sent = Sentence(text=line,
-                        xml=etree.tostring(sents[num]),
-                        corpus=corpus,
-                        congruent=False,
-                        tense_type=tensetype,
-                        compound_tense=False)
+                        xml=get_sentence_xml(num),
+                        corpus=kwargs.get('corpus'),
+                        congruent=kwargs.get('congruent'),
+                        tense_type=kwargs.get('tense_type'),
+                        compound_tense=kwargs.get('compound_tense'))
         sent.save()
         num += 1
 
 
 # Search by tags
 def find_by_corpus(corpus):
+    """Find all sentences in a corpus."""
     selection = Sentence().select().where(Sentence.corpus == corpus)
     print(f'Found {selection.count()} sentences')
     return selection
 
 
 def find_by_query(query):
-    # 'select * from sentence where congruent = 1'
+    """
+    Find all sentences by giving an sql where clause.
+
+    Example: `find_by_query("corpus = 'familjeliv'")`
+    """
     q = 'select * from sentence where %s;' % query
     selection = Sentence.raw(q)
     print(f'found {len(selection)}')
@@ -90,86 +80,138 @@ def get_by_id(sentences):
     return Sentence().select().where(Sentence.id << ids)
 
 
-# change tags
-def change_tags(selection, field, minutes=60):
+def inspect(selection):
+    sort(selection, '', 1000)
+
+
+def sort(selection, field, minutes=60):
+    """Go through selected sentences and show them, possible update them."""
     now = time.time()
     inspected, updated = 0, 0
     paused = False
     for sent in get_by_id(selection):
-        newval = inspect_update(sent, field)
-        #pdb.set_trace()
-        if newval and newval != get_field(sent, field):
-            Sentence.update({get_field_id(field):newval}).where(Sentence.id == sent.id).execute()
-            updated += 1
-        inspected += 1
+        try:
+            inspected += 1
+            updated += int(inspect_update(sent, field))
+        except KeyboardInterrupt:
+            print("\nInterrupted.")
+            paused = True
+            break
+        except Exception as e:
+            print(e)
+            log(f"Error in sentence {sent.id}, {sent.text}:")
+            log(e)
+            print(f"That did not work. Press any key to continue.""")
+            input()
         if check_time(minutes, now):
             paused = True
             break
-    if not paused:
+    if not paused and field:
         print("No more sentences to sort! You are amazing!")
-    print(f'Updated {updated} out of {inspected} sentences')
+    print(f'Updated {updated} out of {inspected} inspected sentences')
 
 
-def shortcuts(field):
-    values = [get_field(val, field) for val in Sentence.select(get_field_id(field)).distinct()]
+def shortcuts(column):
+    """Create digit shortcuts for the values of a column in the Sentence table."""
+    def sorter(val):
+        if val is None:
+            # put this very late, hopefully last...
+            return chr(10000)
+        return str(val)
+
+    values = [get_field(val, column) for val in Sentence.select(get_field_id(column)).distinct()]
+    values.sort(key=sorter)
     return dict(zip(range(len(values)), values))
 
 
 def print_shortcuts(shortcuts):
+    """Print column shortcuts."""
     print(f"Shortcuts:")
     for key, val in shortcuts.items():
         print(f"{key}: {val}")
 
 
 def inspect_update(sentence, field):
-    # TODO add sorterarn features
-    # more inspection (xml, values etc)
-    # update more than one field
+    """Inspect a sentence, focusing on the column `field`, optionally update it."""
     os.system("clear")
-    shorts = shortcuts(field)
+    updated = False
+    shorts = {}
+    sentence = Sentence().get(Sentence.id == sentence.id)
+    print(sentence.id)
     print(sentence.text)
-    print(f"{field}: {get_field(sentence, field)}")
-    print_shortcuts(shorts)
-    print(f"{field}: ", end="")
+    if field:
+        shorts = shortcuts(field)
+        print(f"{field}: {get_field(sentence, field)}")
+        print_shortcuts(shorts)
+        print(f"{field}: ", end="")
     newval = input()
     if newval == inspect_key:
-        inspect(sentence)
+        updated = deep_inspect(sentence)
         inspect_update(sentence, field)
-    try:
-        return shorts[int(newval.strip())]
-    except:
-        return newval.strip()
+    if newval.strip().isdigit():
+        try:
+            # try to use value as a shortcut...
+            newval = shorts[int(newval.strip())]
+        except (ValueError, KeyError) as err:
+            # otherwise use it as a field name
+            log(f"Invalid option {err}")
+            print(f"That did not work. Press any key to try again.""")
+            input()
+            inspect_update(sentence, field)
+
+    if newval != '' and newval != get_field(sentence, field):
+        Sentence.update({get_field_id(field): convert(newval)}).where(Sentence.id == sentence.id).execute()
+        log_update(f"update({{ {get_field_id(field).name}: {convert(newval)} }}).where(Sentence.id == {sentence.id})")
+        return True
+    return updated
+    
 
 
-def inspect(sentence):
+def deep_inspect(sentence, msg=""):
+    """Make a deeper inspection of a sentence, and optionally update any column."""
     os.system("clear")
+    print(msg, end="")
     print(sentence.id)
     print(sentence.text)
     fields = columns().items()
     for num, (field, val) in enumerate(fields):
+        # Dont alllow updates of xml, text or id
         if field not in ['xml', 'text', 'id']:
             print(f"{num}. {field}: {val(sentence)}")
     action = input().strip()
     if action == xml_key:
         show_xml(sentence)
-        inspect(sentence)
+        deep_inspect(sentence)
     if action.isdigit():
+        if int(action) >= len(fields):
+            deep_inspect(sentence, "Invalid field, try again.")
         field, val = list(fields)[int(action)]
         print(f"{field}: ", end="")
         newval = input().strip()
         if newval and newval != val:
-            Sentence.update({get_field_id(field):newval}).where(Sentence.id == sentence.id).execute()
+            Sentence.update({get_field_id(field):convert(newval)}).where(Sentence.id == sentence.id).execute()
+            print(f"Updated")
             return True
     return False
 
 
 def show_xml(sentence):
+    """Pretty print the xml of a sentence."""
     os.system("clear")
-    print(sentence.xml)
+    print(pretty_xml(sentence))
     input()
 
 
+def pretty_xml(sentence):
+    """Create pretty string of the xml of a sentence."""
+    # TODO make prettier (too many newlines)
+    reparsed = parseString(sentence.xml)
+    return reparsed.toprettyxml(indent="\t")
+
+
 def columns():
+    """List functions for all columns of a sentence."""
+    # TODO?
     cols = {"id": lambda x: x.id,
             "text": lambda x: x.text,
             "xml": lambda x: x.xml,
@@ -182,6 +224,7 @@ def columns():
 
 
 def get_field(sentence, field):
+    """Get the reference to column `field` of a sentence."""
     return columns()[field](sentence)
 
 
@@ -199,6 +242,7 @@ def get_field_id(field):
 
 
 def check_time(minutes, start_time):
+    """Check if it's time to take a break."""
     now = time.time()
     time_lapsed = (now-start_time)/60.0
     if minutes > time_lapsed:
@@ -207,6 +251,49 @@ def check_time(minutes, start_time):
         print("Take a break baby!")
         return True
 
-# combine with verbittarn
-# combine with sorterarn
-# export
+
+def convert(value):
+    """Override peewee's (?) conversion of "False" to True.""" 
+    if isinstance(value, str) and value.lower() == "false":
+        return False
+    return value
+
+
+def export(sentences, filename, xmlfile=""):
+    """
+    Export a selection of sentences to file.
+    
+    Print the text represention to a given file,
+    possibly also print the xml representation.
+    """
+    fp = open(filename, 'w')
+    if xmlfile:
+        xml_fp = open(xmlfile, 'w')
+        xml_fp.write("<corpus><text><paragraph>")
+    num = 0
+    for sentence in sentences:
+        fp.write(sentence.text)
+        if xmlfile:
+            xml_fp.write(pretty_xml(sentence))
+        num += 1
+    print(f"Exported {num} sentences to file {filename}.")
+    if xmlfile:
+        xml_fp.write("</paragraph></text></corpus>")
+        print(f"Also printed xml file {xmlfile}.")
+
+
+def select_by_xml():
+    # TODO combine with verbittarn
+    pass
+
+
+def log(err):
+    with open(err_file, 'a') as fh:
+        fh.write(str(err))
+        fh.write('\n')
+
+
+def log_update(update):
+    with open(log_file, 'a') as fh:
+        fh.write(update)
+        fh.write('\n')
