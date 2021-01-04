@@ -12,7 +12,7 @@ import pdb
 
 def init_db():
     """Check if the tables exist, otherwise create them."""
-    for table in [Sentence]:
+    for table in [Sentence, TodoList]:
         if not table.table_exists():
             logging.info(f"Creating table '{table.__name__}'")
             table.create_table()
@@ -58,7 +58,28 @@ def find_by_query(query):
     q = "select * from sentence where %s;" % query
     selection = Sentence.raw(q)
     print(f"found {len(selection)}")
+    make_todolist(selection)
     return selection
+
+
+def make_todolist(sentences):
+    TodoList.delete().execute()
+    for sent in sentences:
+        TodoList(sent=sent.id, checked=False).save()
+
+def check_todolist():
+    todos = TodoList.select().where(TodoList.checked == 0).count()
+    print(f"You have {todos} sentences to do.")
+    return todos
+
+
+def mark_as_done(sentence):
+    TodoList.update(checked=True).where(TodoList.sent==sentence.id).execute()
+
+
+def resume(field="", minutes=60):
+    todos = TodoList.select().where(TodoList.checked == 0)
+    sort((t.sent for t in todos), field, minutes)
 
 
 def get_by_id(sentences):
@@ -94,7 +115,8 @@ def sort(selection, field, minutes=60):
         if check_time(minutes, now):
             paused = True
             break
-    if not paused and field:
+    #if not paused and field:
+    if not check_todolist():
         print("No more sentences to sort! You are amazing!")
     print(f"Updated {updated} out of {inspected} inspected sentences")
 
@@ -137,6 +159,7 @@ def inspect_update(sentence, field, updated=False):
         print_shortcuts(shorts)
         print(f"{field}: ", end="")
     newval = input()
+    mark_as_done(sentence)
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
         return inspect_update(sentence, field, updated)

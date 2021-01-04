@@ -6,6 +6,7 @@ from peewee import (
     BlobField,
     CharField,
     BooleanField,
+    ForeignKeyField,
 )
 
 
@@ -41,6 +42,11 @@ class Sentence(BaseModel):
     compound_tense = BooleanField(null=True)
     trash = BooleanField(null=True)
     undecidable = BooleanField(null=True)
+
+
+class TodoList(BaseModel):
+    sent = ForeignKeyField(Sentence, backref='todo')
+    checked = BooleanField(default=False)
 
 
 # TODO use enums or similar to limit value sets?
