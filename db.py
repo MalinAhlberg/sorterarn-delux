@@ -149,7 +149,7 @@ def inspect_update(sentence, field, updated=False):
             log(f"Invalid option {err}")
             print(f"That did not work. Press any key to try again.")
             input()
-            return inspect_update(sentence, field)
+            return inspect_update(sentence, field, updated=updated)
 
     elif newval != "" and newval != get_field(sentence, field):
         Sentence.update({get_field_id(field): convert(newval)}).where(
