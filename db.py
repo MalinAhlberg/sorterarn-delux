@@ -94,7 +94,6 @@ def sort(selection, field, minutes=60):
             paused = True
             break
         except Exception as e:
-            print(e)
             log(f"Error in sentence {sent.id}, {sent.text}:")
             log(e)
             print(f"That did not work. Press any key to continue.")
@@ -147,8 +146,9 @@ def inspect_update(sentence, field):
     newval = input()
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
-        inspect_update(sentence, field)
-    if newval.strip().isdigit():
+        return inspect_update(sentence, field)
+
+    elif newval.strip().isdigit():
         # try to use value as a shortcut
         try:
             newval = shorts[int(newval.strip())]
@@ -156,9 +156,9 @@ def inspect_update(sentence, field):
             log(f"Invalid option {err}")
             print(f"That did not work. Press any key to try again.")
             input()
-            inspect_update(sentence, field)
+            return inspect_update(sentence, field)
 
-    if newval != "" and newval != get_field(sentence, field):
+    elif newval != "" and newval != get_field(sentence, field):
         Sentence.update({get_field_id(field): convert(newval)}).where(
             Sentence.id == sentence.id
         ).execute()
@@ -183,10 +183,10 @@ def deep_inspect(sentence, msg=""):
     action = input().strip()
     if action == XML_KEY:
         show_xml(sentence)
-        deep_inspect(sentence)
+        return deep_inspect(sentence)
     if action.isdigit():
         if int(action) >= len(fields):
-            deep_inspect(sentence, "Invalid field, try again.")
+            return deep_inspect(sentence, "Invalid field, try again.")
         field, val = list(fields)[int(action)]
         print(f"{field}: ", end="")
         newval = input().strip()
