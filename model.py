@@ -35,13 +35,16 @@ class Sentence(BaseModel):
     text = TextField()
     xml = BlobField(null=True)
     corpus = CharField(null=True)
+    tense = CharField(null=True)
     congruent = BooleanField(null=True)
-    tense_type = CharField(null=True)
+    inc_type = CharField(null=True)
     compound_tense = BooleanField(null=True)
+    trash = BooleanField(null=True)
+    undecidable = BooleanField(null=True)
 
 
 # TODO use enums or similar to limit value sets?
-tense_types = ["evaluative", "modifying", None]
+inc_types = ["evaluative", "modifying", None]
 corpora = ["familjeliv", "flashback", None]
 
 
@@ -54,9 +57,12 @@ def columns():
         "text": lambda x: x.text,
         "xml": lambda x: x.xml,
         "corpus": lambda x: x.corpus,
+        "tense": lambda x: x.tense,
         "congruent": lambda x: x.congruent,
-        "tense_type": lambda x: x.tense_type,
+        "inc_type": lambda x: x.inc_type,
         "compound_tense": lambda x: x.compound_tense,
+        "trash": lambda x: x.trash,
+        "undecidable": lambda x: x.undecidable,
     }
     return cols
 
@@ -73,8 +79,11 @@ def get_field_id(field):
         "text": Sentence.text,
         "xml": Sentence.xml,
         "corpus": Sentence.corpus,
+        "tense": Sentence.tense,
         "congruent": Sentence.congruent,
-        "tense_type": Sentence.tense_type,
+        "inc_type": Sentence.inc_type,
         "compound_tense": Sentence.compound_tense,
+        "trash": Sentence.trash,
+        "undecidable": Sentence.undecidable,
     }
     return sent[field]
