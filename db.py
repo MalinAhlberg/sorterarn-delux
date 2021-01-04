@@ -132,10 +132,9 @@ def print_shortcuts(shortcuts):
         print(f"{key}: {val}")
 
 
-def inspect_update(sentence, field):
+def inspect_update(sentence, field, updated=False):
     """Inspect a sentence, focusing on the column `field`, optionally update it."""
     os.system("clear")
-    updated = False
     shorts = {}
     # get a new version of the sentence
     sentence = Sentence().get(Sentence.id == sentence.id)
@@ -149,7 +148,7 @@ def inspect_update(sentence, field):
     newval = input()
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
-        return inspect_update(sentence, field)
+        return inspect_update(sentence, field, updated)
 
     elif newval.strip().isdigit():
         # try to use value as a shortcut
@@ -172,7 +171,7 @@ def inspect_update(sentence, field):
     return updated
 
 
-def deep_inspect(sentence, msg=""):
+def deep_inspect(sentence, msg="", updated=False):
     """Make a deeper inspection of a sentence, and optionally update any column."""
     os.system("clear")
     # get a new version of the sentence
@@ -199,9 +198,8 @@ def deep_inspect(sentence, msg=""):
             Sentence.update({get_field_id(field):convert(newval)}).where(
                 Sentence.id == sentence.id
             ).execute()
-            print(f"Updated")
-            return True
-    return False
+            return deep_inspect(sentence, msg="Updated!", updated=True)
+    return True
 
 
 def show_xml(sentence):
