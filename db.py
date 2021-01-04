@@ -87,23 +87,22 @@ def sort(selection, field, minutes=60):
     now = time.time()
     inspected, updated = 0, 0
     paused = False
-    for chunk in get_by_id(selection):
-        for sent in chunk:
-            try:
-                inspected += 1
-                updated += int(inspect_update(sent, field))
-            except KeyboardInterrupt:
-                print("\nInterrupted.")
-                paused = True
-                break
-            except Exception as e:
-                log(f"Error in sentence {sent.id}, {sent.text}:")
-                log(e)
-                print(f"That did not work. Press any key to continue.")
-                input()
-            if check_time(minutes, now):
-                paused = True
-                break
+    for sent in selection:
+        try:
+            inspected += 1
+            updated += int(inspect_update(sent, field))
+        except KeyboardInterrupt:
+            print("\nInterrupted.")
+            paused = True
+            break
+        except Exception as e:
+            log(f"Error in sentence {sent.id}, {sent.text}:")
+            log(e)
+            print(f"That did not work. Press any key to continue.")
+            input()
+        if check_time(minutes, now):
+            paused = True
+            break
     if not paused and field:
         print("No more sentences to sort! You are amazing!")
     print(f"Updated {updated} out of {inspected} inspected sentences")
@@ -138,6 +137,7 @@ def inspect_update(sentence, field):
     os.system("clear")
     updated = False
     shorts = {}
+    # get a new version of the sentence
     sentence = Sentence().get(Sentence.id == sentence.id)
     print(sentence.id)
     print(sentence.text)
@@ -175,7 +175,9 @@ def inspect_update(sentence, field):
 def deep_inspect(sentence, msg=""):
     """Make a deeper inspection of a sentence, and optionally update any column."""
     os.system("clear")
-    print(msg, end="")
+    # get a new version of the sentence
+    sentence = Sentence().get(Sentence.id == sentence.id)
+    print(msg, end=" ")
     print(sentence.id)
     print(sentence.text)
     fields = columns().items()
