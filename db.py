@@ -32,21 +32,12 @@ def import_data(txt, **kwargs):
     def get_sentence_xml(num):
         if "xml" in kwargs:
             return etree.tostring(sents[num])
-        return ""
+        return "<xml/>"
 
     num = 0
     for line in open(txt):
-        # TODO avoid repetition of fields...
-        sent = Sentence(
-            text=line,
-            xml=get_sentence_xml(num),
-            corpus=kwargs.get("corpus"),
-            congruent=kwargs.get("congruent"),
-            inc_type=kwargs.get("inc_type"),
-            trash=kwargs.get("trash"),
-            compound_tense=kwargs.get("compound_tense"),
-            undecidable=kwargs.get("undecidable"),
-        )
+        xml = get_sentence_xml(num)
+        sent = parse_sentence(line, num, parsed_xml=xml, **kwargs)
         sent.save()
         num += 1
 

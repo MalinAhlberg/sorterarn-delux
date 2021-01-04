@@ -87,3 +87,17 @@ def get_field_id(field):
         "undecidable": Sentence.undecidable,
     }
     return sent[field]
+
+
+def parse_sentence(line, num, parsed_xml, **kwargs):
+    sent = Sentence(
+        text=line,
+        xml=parsed_xml,
+        corpus=kwargs.get("corpus"),
+        congruent=kwargs.get("congruent"),
+        inc_type=kwargs.get("inc_type"),
+        trash=kwargs.get("trash"),
+        compound_tense=kwargs.get("compound_tense"),
+        undecidable=kwargs.get("undecidable"),
+        )
+    return sent
