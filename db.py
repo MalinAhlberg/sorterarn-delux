@@ -36,13 +36,16 @@ def import_data(txt, **kwargs):
 
     num = 0
     for line in open(txt):
+        # TODO avoid repetition of fields...
         sent = Sentence(
             text=line,
             xml=get_sentence_xml(num),
             corpus=kwargs.get("corpus"),
             congruent=kwargs.get("congruent"),
-            tense_type=kwargs.get("tense_type"),
+            inc_type=kwargs.get("inc_type"),
+            trash=kwargs.get("trash"),
             compound_tense=kwargs.get("compound_tense"),
+            undecidable=kwargs.get("undecidable"),
         )
         sent.save()
         num += 1
