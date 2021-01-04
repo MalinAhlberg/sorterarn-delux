@@ -72,8 +72,10 @@ def find_by_query(query):
 
 def get_by_id(sentences):
     """Get new version of each sentence from db."""
-    ids = [s.id for s in sentences]
-    return Sentence().select().where(Sentence.id << ids)
+    step = 999
+    for x in range(0, len(sentences), step):
+        ids = [s.id for s in sentences[x:x+step]]
+        yield Sentence().select().where(Sentence.id << ids)
 
 
 def inspect(selection):
@@ -85,22 +87,23 @@ def sort(selection, field, minutes=60):
     now = time.time()
     inspected, updated = 0, 0
     paused = False
-    for sent in get_by_id(selection):
-        try:
-            inspected += 1
-            updated += int(inspect_update(sent, field))
-        except KeyboardInterrupt:
-            print("\nInterrupted.")
-            paused = True
-            break
-        except Exception as e:
-            log(f"Error in sentence {sent.id}, {sent.text}:")
-            log(e)
-            print(f"That did not work. Press any key to continue.")
-            input()
-        if check_time(minutes, now):
-            paused = True
-            break
+    for chunk in get_by_id(selection):
+        for sent in chunk:
+            try:
+                inspected += 1
+                updated += int(inspect_update(sent, field))
+            except KeyboardInterrupt:
+                print("\nInterrupted.")
+                paused = True
+                break
+            except Exception as e:
+                log(f"Error in sentence {sent.id}, {sent.text}:")
+                log(e)
+                print(f"That did not work. Press any key to continue.")
+                input()
+            if check_time(minutes, now):
+                paused = True
+                break
     if not paused and field:
         print("No more sentences to sort! You are amazing!")
     print(f"Updated {updated} out of {inspected} inspected sentences")
