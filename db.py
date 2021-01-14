@@ -174,24 +174,25 @@ def inspect_update(sentence, field, updated=False):
         updated = deep_inspect(sentence)
         return inspect_update(sentence, field, updated)
 
-    elif newval.strip().isdigit():
-        # try to use value as a shortcut
-        try:
-            newval = shorts[int(newval.strip())]
-        except (ValueError, KeyError) as err:
-            log(f"Invalid option {err}")
-            print(f"That did not work. Press any key to try again.")
-            input()
-            return inspect_update(sentence, field, updated=updated)
+    else:
+        if newval.strip().isdigit():
+            # try to use value as a shortcut
+            try:
+                newval = shorts[int(newval.strip())]
+            except (ValueError, KeyError) as err:
+                log(f"Invalid option {err}")
+                print(f"That did not work. Press any key to try again.")
+                input()
+                return inspect_update(sentence, field, updated=updated)
 
-    elif newval != "" and newval != get_field(sentence, field):
-        Sentence.update({get_field_id(field): convert(newval)}).where(
-            Sentence.id == sentence.id
-        ).execute()
-        log_update(
-            f"update({{ {get_field_id(field).name}: {convert(newval)} }}).where(Sentence.id == {sentence.id})"
-        )
-        return True
+        if newval != "" and newval != get_field(sentence, field):
+            Sentence.update({get_field_id(field): convert(newval)}).where(
+                Sentence.id == sentence.id
+            ).execute()
+            log_update(
+                f"update({{ {get_field_id(field).name}: {convert(newval)} }}).where(Sentence.id == {sentence.id})"
+            )
+            return True
     return updated
 
 
