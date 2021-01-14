@@ -102,10 +102,17 @@ def label(selection, field, minutes=60):
     now = time.time()
     inspected, updated = 0, 0
     paused = False
+    if isinstance(field, str):
+        fields = [field]
+    else:
+        fields = field
     for sent in selection:
         try:
             inspected += 1
-            updated += int(inspect_update(sent, field))
+            sent_updated = False
+            for field in fields:
+                sent_updated = inspect_update(sent, field) or sent_updated
+            updated += int(sent_updated)
         except KeyboardInterrupt:
             print("\nInterrupted.")
             paused = True
