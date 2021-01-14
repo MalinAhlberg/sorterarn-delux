@@ -49,7 +49,7 @@ def find_by_corpus(corpus):
     return selection
 
 
-def find_by_query(query):
+def find_by_query(query, create_todo=True):
     """
     Find all sentences by giving an sql where clause.
 
@@ -58,7 +58,10 @@ def find_by_query(query):
     q = "select * from sentence where %s;" % query
     selection = Sentence.raw(q)
     print(f"found {len(selection)}")
-    make_todolist(selection)
+    if create_todo:
+        print(f"Creating todolist...")
+        make_todolist(selection)
+        print(f"Todolist created.")
     return selection
 
 
