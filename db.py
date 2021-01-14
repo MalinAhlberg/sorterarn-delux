@@ -82,7 +82,7 @@ def mark_as_done(sentence):
 
 def resume(field="", minutes=60):
     todos = TodoList.select().where(TodoList.checked == 0)
-    sort((t.sent for t in todos), field, minutes)
+    label((t.sent for t in todos), field, minutes)
 
 
 def get_by_id(sentences):
@@ -94,10 +94,10 @@ def get_by_id(sentences):
 
 
 def inspect(selection):
-    sort(selection, "", 1000)
+    label(selection, "", 1000)
 
 
-def sort(selection, field, minutes=60):
+def label(selection, field, minutes=60):
     """Go through selected sentences and show them, possible update them."""
     now = time.time()
     inspected, updated = 0, 0
