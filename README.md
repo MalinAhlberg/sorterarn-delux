@@ -1,4 +1,11 @@
 ## Importing data
+
+First time set up: 
+
+```
+db.init_db()
+```
+
 Import from text file. Optional: xml, corpus and all other fields.
 
 ```
