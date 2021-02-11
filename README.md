@@ -54,7 +54,7 @@ Tab (and then enter) will give more information about the current sentence.
 
 To resume the previous labeling session, use:
 ```
-resume('congruent', minutes=60)
+db.resume('congruent', minutes=60)
 ```
 
 ## Exporting
