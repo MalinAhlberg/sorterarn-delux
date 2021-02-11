@@ -42,6 +42,8 @@ class Sentence(BaseModel):
     compound_tense = BooleanField(null=True)
     trash = BooleanField(null=True)
     undecidable = BooleanField(null=True)
+    meaning = CharField(null=True)
+    
 
 
 class TodoList(BaseModel):
@@ -69,6 +71,7 @@ def columns():
         "compound_tense": lambda x: x.compound_tense,
         "trash": lambda x: x.trash,
         "undecidable": lambda x: x.undecidable,
+        "meaning": lambda x: x.meaning,
     }
     return cols
 
@@ -91,6 +94,7 @@ def get_field_id(field):
         "compound_tense": Sentence.compound_tense,
         "trash": Sentence.trash,
         "undecidable": Sentence.undecidable,
+        "meaning": Sentence.meaning,
     }
     return sent[field]
 
@@ -100,10 +104,12 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         text=line,
         xml=parsed_xml,
         corpus=kwargs.get("corpus"),
+        tense=kwargs.get("tense"),
         congruent=kwargs.get("congruent"),
         inc_type=kwargs.get("inc_type"),
         trash=kwargs.get("trash"),
         compound_tense=kwargs.get("compound_tense"),
         undecidable=kwargs.get("undecidable"),
+        meaning=kwargs.get("meaning"),
         )
     return sent
