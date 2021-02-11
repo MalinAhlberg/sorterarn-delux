@@ -34,7 +34,7 @@ Found 2 matching sentences
 ```
 
 
-## Sorting and inspecting
+## Labeling and inspecting
 
 To inspect a selection of sentences, run
 ```
@@ -44,7 +44,7 @@ Press enter to see the next sentence. Press tab + enter to update the sentence.
 
 
 
-Sort a selection of sentences (update one of the fields of each sentences) by using
+Label a selection of sentences (update one of the fields of each sentences) by using
 the function `sort()`.
 ```
 db.label(sel, 'congruent', minutes=60)
@@ -52,7 +52,10 @@ db.label(sel, 'congruent', minutes=60)
 
 Tab (and then enter) will give more information about the current sentence.
 
-
+To resume the previous labeling session, use:
+```
+resume(field="", minutes=60)
+```
 
 ## Exporting
 To export a selection of sentences to a file, run
