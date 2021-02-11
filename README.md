@@ -40,7 +40,7 @@ Press enter to see the next sentence. Press tab + enter to update the sentence.
 Sort a selection of sentences (update one of the fields of each sentences) by using
 the function `sort()`.
 ```
-db.sort(sel, 'congruent', minutes=60)
+db.label(sel, 'congruent', minutes=60)
 ```
 
 Tab (and then enter) will give more information about the current sentence.
