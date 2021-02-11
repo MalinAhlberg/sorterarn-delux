@@ -54,7 +54,7 @@ Tab (and then enter) will give more information about the current sentence.
 
 To resume the previous labeling session, use:
 ```
-resume(field="", minutes=60)
+resume('congruent', minutes=60)
 ```
 
 ## Exporting
