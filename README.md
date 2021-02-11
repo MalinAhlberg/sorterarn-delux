@@ -45,7 +45,7 @@ Press enter to see the next sentence. Press tab + enter to update the sentence.
 
 
 Label a selection of sentences (update one of the fields of each sentences) by using
-the function `sort()`.
+the function `label()`.
 ```
 db.label(sel, 'congruent', minutes=60)
 ```
