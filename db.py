@@ -35,11 +35,13 @@ def import_data(txt, **kwargs):
         return "<xml/>"
 
     num = 0
+    print(f"Read {txt}")
     for line in open(txt):
         xml = get_sentence_xml(num)
         sent = parse_sentence(line, num, parsed_xml=xml, **kwargs)
         sent.save()
         num += 1
+    print(f"Imported {num} sentences\n")
 
 
 def find_by_corpus(corpus):
@@ -223,6 +225,9 @@ def deep_inspect(sentence, msg="", updated=False):
             Sentence.update({get_field_id(field):convert(newval)}).where(
                 Sentence.id == sentence.id
             ).execute()
+            log_update(
+                f"update({{ {get_field_id(field).name}: {convert(newval)} }}).where(Sentence.id == {sentence.id})"
+            )
             return deep_inspect(sentence, msg="Updated!", updated=True)
     return True
 
