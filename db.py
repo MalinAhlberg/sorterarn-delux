@@ -250,6 +250,8 @@ def convert(value):
     """Override peewee's (?) conversion of "False" to True."""
     if isinstance(value, str) and value.lower() == "false":
         return False
+    if isinstance(value, str) and value.strip().lower() in ["none", "null"]:
+        return None
     return value
 
 
