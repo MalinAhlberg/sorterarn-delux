@@ -1,10 +1,10 @@
-import db, model
+import db
+import model
 import re
 
 
-import pdb
-
 def check(logfile='.db.log'):
+    """Check if the db and the log agrees on the sentence values."""
     status = create_status(logfile)
     for sentid, values in status.items():
         try:
@@ -18,6 +18,7 @@ def check(logfile='.db.log'):
 
 
 def create_status(logfile):
+    """Create a dictionary with the current status, according to the log file."""
     status = {}
     for line in open(logfile):
         pattern = 'update\({\s*(.*?):\s*(.*?)\s*}\).where\(.*==\s*(\d*)\)'

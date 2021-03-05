@@ -44,7 +44,6 @@ class Sentence(BaseModel):
     undecidable = BooleanField(null=True)
     meaning = CharField(null=True)
     verb = CharField(null=True)
-    
 
 
 class TodoList(BaseModel):
