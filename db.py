@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import time
 import lxml.etree as etree
 
@@ -38,11 +39,20 @@ def import_data(txt, **kwargs):
     print(f"Read {txt}")
     for line in open(txt):
         xml = get_sentence_xml(num)
-        sent = parse_sentence(line, num, parsed_xml=xml, **kwargs)
+        verb = get_verb(line)
+        sent = parse_sentence(line, num, parsed_xml=xml, verb=verb, **kwargs)
         sent.save()
         num += 1
     print(f"Imported {num} sentences\n")
 
+
+def get_verb(sentence):
+    m = re.search('\t(.*)\t', sentence)
+    if m is None:
+        m = re.search('^(.*)\t', sentence)
+    return m.group(1)
+    
+        
 
 def find_by_corpus(corpus):
     """Find all sentences in a corpus."""
@@ -209,7 +219,7 @@ def deep_inspect(sentence, msg="", updated=False):
     fields = columns().items()
     for num, (field, val) in enumerate(fields):
         # Dont alllow updates of xml, text or id
-        if field not in ["xml", "text", "id"]:
+        if field not in ["xml", "text", "id", "verb"]:
             print(f"{num}. {field}: {val(sentence)}")
     action = input().strip()
     if action == XML_KEY:
@@ -348,3 +358,16 @@ def check_time(minutes, start_time):
     else:
         print("Take a break baby!")
         return True
+        
+        
+def add_verbs():
+    for sent in Sentence.select():
+        try:
+            if not sent.verb:
+                verb = get_verb(sent.text)
+                Sentence.update({Sentence.verb: verb}).where(Sentence.id == sent.id).execute()
+            # print(f'added verb {verb} to {sent.id}')
+        except:
+            print(f"Did not update {sent.id}.")
+            print(f"{sent.text}")
+

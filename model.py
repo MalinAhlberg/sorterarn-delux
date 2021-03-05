@@ -43,6 +43,7 @@ class Sentence(BaseModel):
     trash = BooleanField(null=True)
     undecidable = BooleanField(null=True)
     meaning = CharField(null=True)
+    verb = CharField(null=True)
     
 
 
@@ -72,6 +73,7 @@ def columns():
         "trash": lambda x: x.trash,
         "undecidable": lambda x: x.undecidable,
         "meaning": lambda x: x.meaning,
+        "verb": lambda x: x.verb,
     }
     return cols
 
@@ -95,6 +97,7 @@ def get_field_id(field):
         "trash": Sentence.trash,
         "undecidable": Sentence.undecidable,
         "meaning": Sentence.meaning,
+        "verb": Sentence.verb,
     }
     return sent[field]
 
@@ -111,5 +114,6 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         compound_tense=kwargs.get("compound_tense"),
         undecidable=kwargs.get("undecidable"),
         meaning=kwargs.get("meaning"),
+        verb=kwargs.get("verb"),
         )
     return sent
