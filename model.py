@@ -57,32 +57,12 @@ inc_types = ["evaluative", "modifying", None]
 corpora = ["familjeliv", "flashback", None]
 
 
-# Ugly section :(
-def columns():
-    """List functions for all columns of a sentence."""
-    # TODO
-    cols = {
-        "id": lambda x: x.id,
-        "text": lambda x: x.text,
-        "xml": lambda x: x.xml,
-        "corpus": lambda x: x.corpus,
-        "tense": lambda x: x.tense,
-        "congruent": lambda x: x.congruent,
-        "inc_type": lambda x: x.inc_type,
-        "compound_tense": lambda x: x.compound_tense,
-        "trash": lambda x: x.trash,
-        "undecidable": lambda x: x.undecidable,
-        "meaning": lambda x: x.meaning,
-        "verb": lambda x: x.verb,
-    }
-    return cols
-
-
 def get_field(sentence, field):
     """Get the reference to column `field` of a sentence."""
-    return columns()[field](sentence)
+    return sentence.__getattribute__(field)
 
 
+# Ugly section :(
 def get_field_id(field):
     # TODO
     sent = {
