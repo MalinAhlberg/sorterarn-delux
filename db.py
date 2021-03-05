@@ -163,8 +163,14 @@ def shortcuts(column):
 def print_shortcuts(shortcuts):
     """Print column shortcuts."""
     print(f"Shortcuts:")
-    for key, val in shortcuts.items():
-        print(f"{key}: {val}")
+    data = list(shortcuts.items())
+    chunks = [data[x:x+3] for x in range(0, len(data), 3)]
+    for row in chunks:
+        for key, val in row:
+            #print("".join(f"{key}: {val}".ljust(col_width)), end='\t')
+            print(f"{key}: {val}",end='\t')
+        print()        
+    print('\n')
 
 
 def inspect_update(sentence, field, updated=False):
