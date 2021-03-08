@@ -11,6 +11,7 @@ from peewee import (
 
 
 INSPECT_KEY = "\t"
+BACK = "\t\t"
 XML_KEY = "x"
 DB_NAME = "test.db"
 ERR_FILE = ".db.err"

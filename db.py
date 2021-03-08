@@ -118,13 +118,15 @@ def label(selection, field, minutes=60):
         fields = [field]
     else:
         fields = field
+    last = None
     for sent in selection:
         try:
             inspected += 1
             sent_updated = False
             for field in fields:
-                sent_updated = inspect_update(sent, field) or sent_updated
+                sent_updated = inspect_update(sent, field, last=last) or sent_updated
             updated += int(sent_updated)
+            last = sent
         except KeyboardInterrupt:
             print("\nInterrupted.")
             paused = True
@@ -173,24 +175,21 @@ def print_shortcuts(shortcuts):
     print('\n')
 
 
-def inspect_update(sentence, field, updated=False):
+def inspect_update(sentence, field, last=None, updated=False):
     """Inspect a sentence, focusing on the column `field`, optionally update it."""
-    os.system("clear")
-    shorts = {}
-    # get a new version of the sentence
-    sentence = Sentence().get(Sentence.id == sentence.id)
-    print(sentence.id)
-    print(sentence.text)
-    if field:
-        shorts = shortcuts(field)
-        print(f"{field}: {get_field(sentence, field)}")
-        print_shortcuts(shorts)
-        print(f"{field}: ", end="")
-    newval = input()
+    newval = print_sentence(sentence, field)
+    if newval == BACK:
+        if last:
+            updated = inspect_update(last, field)
+            newval = print_sentence(sentence, field)
+        else:
+            print("No preceeding sentence.")
+            input()
+            return inspect_update(sentence, field, last=last, updated=updated)
     mark_as_done(sentence)
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
-        return inspect_update(sentence, field, updated)
+        return inspect_update(sentence, field, updated, last=last)
 
     else:
         if newval.strip().isdigit():
@@ -201,7 +200,7 @@ def inspect_update(sentence, field, updated=False):
                 log(f"Invalid option {err}")
                 print(f"That did not work. Press any key to try again.")
                 input()
-                return inspect_update(sentence, field, updated=updated)
+                return inspect_update(sentence, field, last=last, updated=updated)
 
         if newval != "" and newval != get_field(sentence, field):
             Sentence.update({get_field_id(field): convert(newval)}).where(
@@ -212,6 +211,21 @@ def inspect_update(sentence, field, updated=False):
             )
             return True
     return updated
+
+
+def print_sentence(sentence, field):
+    os.system("clear")
+    shorts = {}
+    # get a new version of the sentence
+    sentence = Sentence().get_by_id(sentence.id)
+    print(sentence.id)
+    print(sentence.text)
+    if field:
+        shorts = shortcuts(field)
+        print(f"{field}: {get_field(sentence, field)}")
+        print_shortcuts(shorts)
+        print(f"{field}: ", end="")
+    return input()
 
 
 def deep_inspect(sentence, msg="", updated=False):
