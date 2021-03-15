@@ -5,12 +5,43 @@ import re
 import urllib.parse
 import urllib.request
 
+settings =  {      "textmode": "plain",
+    "word_segmenter": "default_tokenizer",
+    "sentence_segmentation": {
+        "sentence_chunk": "paragraph",
+        "sentence_segmenter": "linebreaks"
+    },
+    "paragraph_segmentation": {
+        "paragraph_segmenter": "blanklines"
+    },
+    "positional_attributes": {
+        "lexical_attributes": [
+            "pos",
+            "msd",
+            "lemma",
+            "lex",
+            "sense"
+        ],
+        "compound_attributes": [],
+        "dependency_attributes": [
+            "ref",
+            "dephead",
+            "deprel"
+        ],
+        "sentiment": []
+    },
+    "named_entity_recognition": [],
+    "text_attributes": {
+        "readability_metrics": []
+    }
+}
 
 def annotate(sent):
     """Get annotations for a sentence."""
 
     sent = urllib.parse.quote(sent)
-    url = f'https://ws.spraakbanken.gu.se/ws/sparv/v2/?text={sent}'
+    urlsettings = str(settings).replace("'",'"').replace(' ','')
+    url = f'https://ws.spraakbanken.gu.se/ws/sparv/v2/?text={sent}&settings={urlsettings}'
     with urllib.request.urlopen(url) as response:
         ans = response.read()
     tree = ET.fromstring(ans)
