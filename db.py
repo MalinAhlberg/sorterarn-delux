@@ -185,11 +185,11 @@ def inspect_update(sentence, field, last=None, updated=False):
         else:
             print("No preceeding sentence.")
             input()
-            return inspect_update(sentence, field, last=last, updated=updated)
+            return inspect_update(sentence, field, updated=updated, last=last)
     mark_as_done(sentence)
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
-        return inspect_update(sentence, field, updated, last=last)
+        return inspect_update(sentence, field, updated=updated, last=last)
 
     else:
         if newval.strip().isdigit():
@@ -236,11 +236,11 @@ def deep_inspect(sentence, msg="", updated=False):
     print(msg, end=" ")
     print(sentence.id)
     print(sentence.text)
-    fields = columns().items()
-    for num, (field, val) in enumerate(fields):
+    fields = show_columns()
+    for num, field in enumerate(fields):
         # Dont alllow updates of xml, text or id
         if field not in ["xml", "text", "id", "verb"]:
-            print(f"{num}. {field}: {val(sentence)}")
+            print(f"{num}. {field}: {get_field(sentence, field)}")
     action = input().strip()
     if action == XML_KEY:
         show_xml(sentence)

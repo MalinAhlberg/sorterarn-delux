@@ -62,6 +62,21 @@ def get_field(sentence, field):
     return sentence.__getattribute__(field)
 
 
+def show_columns():
+    """ Define the changable columns."""
+    # Dont alllow updates of xml, text or id
+    return [
+        "corpus",
+        "tense",
+        "congruent",
+        "inc_type",
+        "compound_tense",
+        "trash",
+        "undecidable",
+        "meaning",
+    ]
+
+
 # Ugly section :(
 def get_field_id(field):
     # TODO
