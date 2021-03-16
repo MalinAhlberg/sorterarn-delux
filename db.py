@@ -177,11 +177,12 @@ def print_shortcuts(shortcuts):
 
 def inspect_update(sentence, field, last=None, updated=False):
     """Inspect a sentence, focusing on the column `field`, optionally update it."""
-    newval = print_sentence(sentence, field)
+    shorts = {}
+    newval = print_sentence(sentence, field, shorts)
     if newval == BACK:
         if last:
             updated = inspect_update(last, field)
-            newval = print_sentence(sentence, field)
+            newval = print_sentence(sentence, field, shorts)
         else:
             print("No preceeding sentence.")
             input()
@@ -213,15 +214,14 @@ def inspect_update(sentence, field, last=None, updated=False):
     return updated
 
 
-def print_sentence(sentence, field):
+def print_sentence(sentence, field, shorts):
     os.system("clear")
-    shorts = {}
     # get a new version of the sentence
     sentence = Sentence().get_by_id(sentence.id)
     print(sentence.id)
     print(sentence.text)
     if field:
-        shorts = shortcuts(field)
+        shorts.update(shortcuts(field))
         print(f"{field}: {get_field(sentence, field)}")
         print_shortcuts(shorts)
         print(f"{field}: ", end="")
