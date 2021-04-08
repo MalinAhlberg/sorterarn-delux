@@ -248,7 +248,8 @@ def deep_inspect(sentence, msg="", updated=False):
     if action.isdigit():
         if int(action) >= len(fields):
             return deep_inspect(sentence, "Invalid field, try again.")
-        field, val = list(fields)[int(action)]
+        field = list(fields)[int(action)]
+        val = get_field(sentence, field)
         print(f"{field}: ", end="")
         newval = input().strip()
         if newval and newval != val:
