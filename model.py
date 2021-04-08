@@ -35,7 +35,6 @@ class Sentence(BaseModel):
     """Sentence model."""
 
     text = TextField()
-    xml = BlobField(null=True)
     corpus = CharField(null=True)
     tense = CharField(null=True)
     congruent = BooleanField(null=True)
@@ -45,6 +44,9 @@ class Sentence(BaseModel):
     undecidable = BooleanField(null=True)
     meaning = CharField(null=True)
     verb = CharField(null=True)
+    temp_meaning = CharField(null=True)
+    xml = BlobField(null=True)
+    
 
 
 class TodoList(BaseModel):
@@ -74,6 +76,7 @@ def show_columns():
         "trash",
         "undecidable",
         "meaning",
+        "temp_meaning",
     ]
 
 
@@ -83,7 +86,6 @@ def get_field_id(field):
     sent = {
         "id": Sentence.id,
         "text": Sentence.text,
-        "xml": Sentence.xml,
         "corpus": Sentence.corpus,
         "tense": Sentence.tense,
         "congruent": Sentence.congruent,
@@ -93,6 +95,8 @@ def get_field_id(field):
         "undecidable": Sentence.undecidable,
         "meaning": Sentence.meaning,
         "verb": Sentence.verb,
+        "temp_meaning": Sentence.temp_meaning,
+        "xml": Sentence.xml,
     }
     return sent[field]
 
@@ -100,7 +104,6 @@ def get_field_id(field):
 def parse_sentence(line, num, parsed_xml, **kwargs):
     sent = Sentence(
         text=line,
-        xml=parsed_xml,
         corpus=kwargs.get("corpus"),
         tense=kwargs.get("tense"),
         congruent=kwargs.get("congruent"),
@@ -110,5 +113,7 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         undecidable=kwargs.get("undecidable"),
         meaning=kwargs.get("meaning"),
         verb=kwargs.get("verb"),
+        temp_meaning=kwargs.get("temp_meaning"),
+        xml=parsed_xml,
         )
     return sent
