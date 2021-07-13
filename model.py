@@ -37,15 +37,17 @@ class Sentence(BaseModel):
     text = TextField()
     corpus = CharField(null=True)
     tense = CharField(null=True)
-    congruent = BooleanField(null=True)
+    congruent = BooleanField(null=True)    #subtype = CharField(null=True)
+    type = CharField(null=True)
     inc_type = CharField(null=True)
     compound_tense = BooleanField(null=True)
     trash = BooleanField(null=True)
     undecidable = BooleanField(null=True)
-    meaning = CharField(null=True)
     verb = CharField(null=True)
     temp_meaning = CharField(null=True)
     xml = BlobField(null=True)
+    relayed_marker = CharField(null=True)
+    
     
 
 
@@ -70,13 +72,14 @@ def show_columns():
     return [
         "corpus",
         "tense",
-        "congruent",
+        "congruent", #"subtype",
+        "type",
         "inc_type",
         "compound_tense",
         "trash",
         "undecidable",
-        "meaning",
         "temp_meaning",
+        "relayed_marker",
     ]
 
 
@@ -88,15 +91,16 @@ def get_field_id(field):
         "text": Sentence.text,
         "corpus": Sentence.corpus,
         "tense": Sentence.tense,
-        "congruent": Sentence.congruent,
+        "congruent": Sentence.congruent,#"subtype": Sentence.subtype,
         "inc_type": Sentence.inc_type,
+        "type": Sentence.type,
         "compound_tense": Sentence.compound_tense,
         "trash": Sentence.trash,
         "undecidable": Sentence.undecidable,
-        "meaning": Sentence.meaning,
         "verb": Sentence.verb,
         "temp_meaning": Sentence.temp_meaning,
         "xml": Sentence.xml,
+        "relayed_marker": Sentence.relayed_marker,
     }
     return sent[field]
 
@@ -106,14 +110,15 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         text=line,
         corpus=kwargs.get("corpus"),
         tense=kwargs.get("tense"),
-        congruent=kwargs.get("congruent"),
+        congruent=kwargs.get("congruent"), #subtype=kwargs.get("subtype"),
         inc_type=kwargs.get("inc_type"),
+        type=kwargs.get("type"),
         trash=kwargs.get("trash"),
         compound_tense=kwargs.get("compound_tense"),
         undecidable=kwargs.get("undecidable"),
-        meaning=kwargs.get("meaning"),
         verb=kwargs.get("verb"),
         temp_meaning=kwargs.get("temp_meaning"),
         xml=parsed_xml,
+        relayed_marker=kwargs.get("relayed_marker"),
         )
     return sent
