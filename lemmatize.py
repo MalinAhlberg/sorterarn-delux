@@ -17,10 +17,24 @@ def add_lemma(sent):
         index = 0
     sxml = ET.fromstring(sent.xml)
     wxml = sxml.findall(".//w")[index]
-    if wxml.text != sent.verb:
-        print(f'Problem!! {wxml.text} != {sent.verb}, {sent.id}')
-    sent.lemma = wxml.attrib.get('lemma')
-    sent.save()
+    if wxml.text == sent.verb:
+        sent.lemma = wxml.attrib.get('lemma')
+        sent.save()
+    else:
+        retry(sent, index, sxml, sent.verb)
+
+
+def retry(sent, index, sxml, verb):
+    matches = 0
+    for wxml in sxml.findall(".//w")[index-5:index+5]:
+        if wxml.text == verb:
+            sent.lemma = wxml.attrib.get('lemma')
+            matches += 1
+    if matches != 1:
+        print(f'Problem! {sent.id}, {matches} matching words found')
+    else:
+        sent.save()
+
 
 
 def add_lemmas(selection):
