@@ -221,9 +221,11 @@ def print_sentence(sentence, field):
     print(sentence.id)
     print(sentence.text)
     if field:
-        shorts = shortcuts(field)
+        shorts.update(shortcuts(field))
         print(f"{field}: {get_field(sentence, field)}")
-        print_shortcuts(shorts)
+        if field != "verb":
+            shorts.update(shortcuts(field))
+            print_shortcuts(shorts)
         print(f"{field}: ", end="")
     return input()
 

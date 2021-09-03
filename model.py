@@ -45,6 +45,7 @@ class Sentence(BaseModel):
     undecidable = BooleanField(null=True)
     meaning = CharField(null=True)
     verb = CharField(null=True)
+    lemma = CharField(null=True)
 
 
 class TodoList(BaseModel):
@@ -78,6 +79,7 @@ def get_field_id(field):
         "undecidable": Sentence.undecidable,
         "meaning": Sentence.meaning,
         "verb": Sentence.verb,
+        "lemma": Sentence.lemma,
     }
     return sent[field]
 
@@ -95,5 +97,6 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         undecidable=kwargs.get("undecidable"),
         meaning=kwargs.get("meaning"),
         verb=kwargs.get("verb"),
+        lemma=kwargs.get("lemma"),
         )
     return sent
