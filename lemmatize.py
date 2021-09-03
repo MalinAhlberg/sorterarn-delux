@@ -18,6 +18,11 @@ def add_lemma(sent):
     sxml = ET.fromstring(sent.xml)
     wxml = sxml.findall(".//w")[index]
     if wxml.text != sent.verb:
-        print(f'ajaj {wxml.text} != {sent.verb}, {sent.id}')
+        print(f'Problem!! {wxml.text} != {sent.verb}, {sent.id}')
     sent.lemma = wxml.attrib.get('lemma')
     sent.save()
+
+
+def add_lemmas(selection):
+    for sent in selection:
+        add_lemma(sent)
