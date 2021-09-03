@@ -47,8 +47,7 @@ class Sentence(BaseModel):
     temp_meaning = CharField(null=True)
     xml = BlobField(null=True)
     relayed_marker = CharField(null=True)
-    
-    
+    lemma = CharField(null=True)
 
 
 class TodoList(BaseModel):
@@ -98,9 +97,14 @@ def get_field_id(field):
         "trash": Sentence.trash,
         "undecidable": Sentence.undecidable,
         "verb": Sentence.verb,
+<<<<<<< HEAD
         "temp_meaning": Sentence.temp_meaning,
         "xml": Sentence.xml,
         "relayed_marker": Sentence.relayed_marker,
+||||||| parent of 4f799fd (Add lemmas)
+=======
+        "lemma": Sentence.lemma,
+>>>>>>> 4f799fd (Add lemmas)
     }
     return sent[field]
 
@@ -117,8 +121,13 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         compound_tense=kwargs.get("compound_tense"),
         undecidable=kwargs.get("undecidable"),
         verb=kwargs.get("verb"),
+<<<<<<< HEAD
         temp_meaning=kwargs.get("temp_meaning"),
         xml=parsed_xml,
         relayed_marker=kwargs.get("relayed_marker"),
+||||||| parent of 4f799fd (Add lemmas)
+=======
+        lemma=kwargs.get("lemma"),
+>>>>>>> 4f799fd (Add lemmas)
         )
     return sent
