@@ -59,6 +59,15 @@ class NER(BaseModel):
     sentence = ForeignKeyField(Sentence, backref='ner')
 
 
+class NER(BaseModel):
+    """Named entity info."""
+    ex = CharField()
+    type = CharField()
+    subtype = CharField()
+    text = CharField()
+    sentence = ForeignKeyField(Sentence, backref='ner')
+
+
 class TodoList(BaseModel):
     sent = ForeignKeyField(Sentence, backref='todo')
     checked = BooleanField(default=False)
