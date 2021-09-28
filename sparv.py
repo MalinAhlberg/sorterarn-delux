@@ -5,11 +5,12 @@ import re
 import urllib.parse
 import urllib.request
 
+
 settings =  {      "textmode": "plain",
     "word_segmenter": "default_tokenizer",
     "sentence_segmentation": {
         "sentence_chunk": "paragraph",
-        "sentence_segmenter": "linebreaks"
+        "sentence_segmenter": "blanklines"
     },
     "paragraph_segmentation": {
         "paragraph_segmenter": "blanklines"
@@ -36,31 +37,33 @@ settings =  {      "textmode": "plain",
     }
 }
 
-def annotate(sent):
+def annotate(sents):
     """Get annotations for a sentence."""
 
-    sent = urllib.parse.quote(sent)
     urlsettings = str(settings).replace("'",'"').replace(' ','')
-    url = f'https://ws.spraakbanken.gu.se/ws/sparv/v2/?text={sent}&settings={urlsettings}'
-    with urllib.request.urlopen(url) as response:
+    data = {'text': '\n\n'.join([s.text for s in sents])}
+    data = urllib.parse.urlencode(data).encode('utf-8')
+    url = f'https://ws.spraakbanken.gu.se/ws/sparv/v2/?settings={urlsettings}'
+    req =urllib.request.Request(url, data)
+    with urllib.request.urlopen(req) as response:
         ans = response.read()
     tree = ET.fromstring(ans)
-    return ET.tostring(tree.find('.//paragraph'))
-
-
-def add_xml(sentence):
-    xml = annotate(sentence.text)
-    db.Sentence.update({db.Sentence.xml: xml}).where(
-        db.Sentence.id == sentence.id
-    ).execute()
+    xml = [ET.tostring(x) for x in tree.findall('.//sentence')]
+    if len(xml) != len(sents):
+        print(f"Something went wrong! Sparv miscounted sentences. Disgarding id {[s.id for s in sents]}")
+    for sxml, sentence in zip(xml, sents):
+        db.Sentence.update({db.Sentence.xml: sxml}).where(
+            db.Sentence.id == sentence.id
+        ).execute()
+    return xml
 
 
 def annotate_selection(selection):
     done = 0
     print_progressbar(done, len(selection))
-    for sent in selection:
-        add_xml(sent)
-        done += 1
+    for sents in chunk(selection, 500):
+        annotate(sents)
+        done += len(sents)
         print_progressbar(done, len(selection))
 
 
@@ -82,3 +85,8 @@ def print_progressbar(iteration, total, decimals=1, length=100):
     # Print New Line on Complete
     if iteration == total:
         print()
+
+
+def chunk(list, size):
+    for i in range(0, len(list), size):
+        yield list[i: i+size]

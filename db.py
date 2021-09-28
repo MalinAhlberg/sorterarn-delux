@@ -177,19 +177,20 @@ def print_shortcuts(shortcuts):
 
 def inspect_update(sentence, field, last=None, updated=False):
     """Inspect a sentence, focusing on the column `field`, optionally update it."""
-    newval = print_sentence(sentence, field)
+    shorts = {}
+    newval = print_sentence(sentence, field, shorts)
     if newval == BACK:
         if last:
             updated = inspect_update(last, field)
-            newval = print_sentence(sentence, field)
+            newval = print_sentence(sentence, field, shorts)
         else:
             print("No preceeding sentence.")
             input()
-            return inspect_update(sentence, field, last=last, updated=updated)
+            return inspect_update(sentence, field, updated=updated, last=last)
     mark_as_done(sentence)
     if newval == INSPECT_KEY:
         updated = deep_inspect(sentence)
-        return inspect_update(sentence, field, updated, last=last)
+        return inspect_update(sentence, field, updated=updated, last=last)
 
     else:
         if newval.strip().isdigit():
@@ -213,15 +214,14 @@ def inspect_update(sentence, field, last=None, updated=False):
     return updated
 
 
-def print_sentence(sentence, field):
+def print_sentence(sentence, field, shorts):
     os.system("clear")
-    shorts = {}
     # get a new version of the sentence
     sentence = Sentence().get_by_id(sentence.id)
     print(sentence.id)
     print(sentence.text)
     if field:
-        shorts = shortcuts(field)
+        shorts.update(shortcuts(field))
         print(f"{field}: {get_field(sentence, field)}")
         print_shortcuts(shorts)
         print(f"{field}: ", end="")
@@ -236,11 +236,11 @@ def deep_inspect(sentence, msg="", updated=False):
     print(msg, end=" ")
     print(sentence.id)
     print(sentence.text)
-    fields = columns().items()
-    for num, (field, val) in enumerate(fields):
+    fields = show_columns()
+    for num, field in enumerate(fields):
         # Dont alllow updates of xml, text or id
         if field not in ["xml", "text", "id", "verb"]:
-            print(f"{num}. {field}: {val(sentence)}")
+            print(f"{num}. {field}: {get_field(sentence, field)}")
     action = input().strip()
     if action == XML_KEY:
         show_xml(sentence)
@@ -248,7 +248,8 @@ def deep_inspect(sentence, msg="", updated=False):
     if action.isdigit():
         if int(action) >= len(fields):
             return deep_inspect(sentence, "Invalid field, try again.")
-        field, val = list(fields)[int(action)]
+        field = list(fields)[int(action)]
+        val = get_field(sentence, field)
         print(f"{field}: ", end="")
         newval = input().strip()
         if newval and newval != val:
