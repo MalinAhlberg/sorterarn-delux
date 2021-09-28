@@ -13,7 +13,7 @@ import pdb
 
 def init_db():
     """Check if the tables exist, otherwise create them."""
-    for table in [Sentence, TodoList]:
+    for table in [Sentence, TodoList, NER]:
         if not table.table_exists():
             logging.info(f"Creating table '{table.__name__}'")
             table.create_table()
