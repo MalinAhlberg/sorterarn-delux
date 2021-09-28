@@ -26,9 +26,9 @@ def add_lemma(sent):
 
 def retry(sent, index, sxml, verb):
     matches = 0
-    for wxml in sxml.findall(".//w")[index-5:index+5]:
+    for wxml in sxml.findall(".//w")[max(0, index-5):index+5]:
         if wxml.text == verb:
-            sent.lemma = wxml.attrib.get('lemma')
+            sent.verb_lemma = wxml.attrib.get('lemma')
             matches += 1
     if matches != 1:
         print(f'Problem! {sent.id}, {matches} matching words found')
@@ -40,3 +40,14 @@ def retry(sent, index, sxml, verb):
 def add_lemmas(selection):
     for sent in selection:
         add_lemma(sent)
+
+
+def add_manual(filep):
+    for line in open(filep):
+        m = re.match("id='(\d*)'.*='(.*)'", line)
+        if not m:
+            continue
+        print(f'Add lemma {m.group(2)} to id {m.group(1)}')
+        s = db.Sentence().get_by_id(m.group(1))
+        s.verb_lemma = f'|{m.group(2)}|'
+        s.save()
