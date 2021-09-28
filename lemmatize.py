@@ -1,4 +1,4 @@
-
+import db
 import xml.etree.ElementTree as ET
 import re
 import pdb
@@ -17,8 +17,8 @@ def add_lemma(sent):
         index = 0
     sxml = ET.fromstring(sent.xml)
     wxml = sxml.findall(".//w")[index]
-    if wxml.text == sent.verb:
-        sent.lemma = wxml.attrib.get('lemma')
+    if wxml.text.lower() == sent.verb.lower():
+        sent.verb_lemma = wxml.attrib.get('lemma')
         sent.save()
     else:
         retry(sent, index, sxml, sent.verb)
