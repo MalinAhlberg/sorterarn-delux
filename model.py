@@ -47,8 +47,7 @@ class Sentence(BaseModel):
     temp_meaning = CharField(null=True)
     xml = BlobField(null=True)
     relayed_marker = CharField(null=True)
-    
-    
+    verb_lemma = CharField(null=True)
 
 
 class TodoList(BaseModel):
@@ -101,6 +100,7 @@ def get_field_id(field):
         "temp_meaning": Sentence.temp_meaning,
         "xml": Sentence.xml,
         "relayed_marker": Sentence.relayed_marker,
+        "verb_lemma": Sentence.verb_lemma,
     }
     return sent[field]
 
@@ -120,5 +120,6 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         temp_meaning=kwargs.get("temp_meaning"),
         xml=parsed_xml,
         relayed_marker=kwargs.get("relayed_marker"),
+        verb_lemma=kwargs.get("verb_lemma"),
         )
     return sent
