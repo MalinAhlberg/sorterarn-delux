@@ -1,10 +1,10 @@
 """
-Quick and dirty usage of named entity recognizition.
+Quick and dirty usage of named entity recognition.
 
 Usage:
 First run
 > import db, nermodel
-> db.init_db()  # to set up the new table
+> db.init_db()  # to set up the new table¨
 
 Then make a selection to annotate (possibly all sentences, but better start with a few,
 to make sure everything works as intended).
