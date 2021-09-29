@@ -30,7 +30,7 @@ SELECT ner.subtype, ner.text, sentence.congruent FROM ner
 NB! Sentences with multiple verbs will have their ne:s multiplied, one time for each verb.
 """
 import lxml.etree as etree
-import pdb
+import datetime
 import model
 
 
@@ -47,3 +47,19 @@ def add_ne_info(selection):
                 subtype=ne_xml.attrib.get('subtype'),
             )
             ner.save()
+
+
+def search_ne_info(query):
+    q = "select * from sentence where %s;" % query
+    selection = model.Sentence.raw(q)
+    start = datetime.datetime.now()
+    count, fails = 0, 0
+    for sentence in selection:
+        try:
+            xml = etree.fromstring(sentence.xml)
+            for ne_xml in xml.iterfind(".//ne"):
+                count += 1
+        except:
+            fails += 1
+    print(f'Inspected {count} nes, could not parse {fails}')
+    print(f'Took {datetime.datetime.now()-start}')
