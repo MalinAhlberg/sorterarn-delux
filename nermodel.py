@@ -13,11 +13,15 @@ to make sure everything works as intended).
 
 Explore from gui or ask someone how to do it from Python.
 
-Example query:
-finding NE sections of type TIMEX in GP
-  show subtype (of ne)
-       congruency (of sentence)
-       text (of ne)
+### Example queries
+- inspecting the ner table:
+SELECT * FROM ner LIMIT 20;
+
+
+- finding NE sections of type TIMEX in GP and
+  showing subtype (of ne)
+          congruency (of sentence)
+          text (of ne)
 
 SELECT ner.subtype, ner.text, sentence.congruent FROM ner
   JOIN sentence on sentence.id = ner.sentence_id where ner.ex = "TIMEX" and sentence.corpus = "GP"
