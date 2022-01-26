@@ -40,7 +40,7 @@ class Sentence(BaseModel):
     congruent = BooleanField(null=True)    #subtype = CharField(null=True)
     type = CharField(null=True)
     inc_type = CharField(null=True)
-    compound_tense = BooleanField(null=True)
+    auxiliary = BooleanField(null=True)
     trash = BooleanField(null=True)
     undecidable = BooleanField(null=True)
     verb = CharField(null=True)
@@ -92,7 +92,7 @@ def show_columns():
         "congruent", #"subtype",
         "type",
         "inc_type",
-        "compound_tense",
+        "auxiliary",
         "trash",
         "undecidable",
         "temp_meaning",
@@ -111,7 +111,7 @@ def get_field_id(field):
         "congruent": Sentence.congruent,#"subtype": Sentence.subtype,
         "inc_type": Sentence.inc_type,
         "type": Sentence.type,
-        "compound_tense": Sentence.compound_tense,
+        "auxiliary": Sentence.auxiliary,
         "trash": Sentence.trash,
         "undecidable": Sentence.undecidable,
         "verb": Sentence.verb,
@@ -132,7 +132,7 @@ def parse_sentence(line, num, parsed_xml, **kwargs):
         inc_type=kwargs.get("inc_type"),
         type=kwargs.get("type"),
         trash=kwargs.get("trash"),
-        compound_tense=kwargs.get("compound_tense"),
+        auxiliary=kwargs.get("auxiliary"),
         undecidable=kwargs.get("undecidable"),
         verb=kwargs.get("verb"),
         temp_meaning=kwargs.get("temp_meaning"),
